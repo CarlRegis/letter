@@ -42,6 +42,32 @@
       display: block;
       opacity: 1;
     }
+    #bearGif {
+      position: absolute;
+      top: 15%;
+      left: 45%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      z-index: 9;
+    }
+    #envelopeHint {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #ff6b9d;
+      font-family: 'Georgia', serif;
+      font-style: italic;
+      font-size: 20px;
+      white-space: nowrap;
+      z-index: 10;
+      animation: pulseText 2s ease-in-out infinite;
+      text-shadow: 1px 1px 2px rgba(255,107,157,0.3);
+    }
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
     #openBtn {
       position: absolute;
       top: 50%;
@@ -50,10 +76,16 @@
       cursor: pointer;
       z-index: 10;
       transition: transform 0.4s, opacity 0.4s;
+      animation: heartbeat 2s ease-in-out infinite;
     }
     #openBtn.zoom {
+      animation: none;
       transform: translate(-50%, -50%) scale(1.5);
       opacity: 0;
+    }
+    @keyframes heartbeat {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.15); }
     }
     #letter {
       display: none;
@@ -203,8 +235,10 @@
     }
     #content p {
       margin: 0 0 10px 0;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: bold;
+      color: #ff6b9d;
+      font-style: italic;
       white-space: nowrap;
     }
     #buttons {
@@ -401,12 +435,17 @@
     <img id="shockedGif" class="media" src="shocked.gif">
     <img id="cryGif" class="media" src="cry.gif">
 
+    <img id="bearGif" src="bear.gif" alt="Bear">
+
     <img id="openBtn" src="envelope.png" alt="Open">
+    <p id="envelopeHint">Tap the envelope to open!</p>
 
     <div id="letter">
-      <h1>Dear You,</h1>
+      <h1>Dear Ella,</h1>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        <!-- Hii! it has been month since we started talking, at first I didn't expect something but as days goes by I started looking forward for every bit of your replies and I started to think about you more than I expected even if i'm working, I started to think kun nag-aano ka, nag eat kana ba, nag rest kana ba, and how was your day. I thought that parang nasanay lang ba ako pero when I tried to think more deeper that's when I realized that I already have feelings for you or in short I like you but I didn't tell you kaagad because I don't have the courage pa especially if ha personal ko ig yakan so I decided to make this to tell you that I LIKE YOU. You don't have to be pressured ha, you don't have to like me back naman hehehe. Thats all, secret la ine na message ha ayaw pabasaha hra emman kay maiibanan ak angas HAHAHAHA. I have a question pala ig click lang ang arrow.
+          -->
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptate, quibusdam explicabo! Laborum fugit corrupti accusamus in nihil nemo eius quibusdam quidem, tempora neque, beatae labore aliquam asperiores hic nobis reiciendis.
       </p>
       <button id="letterBtn">&#8594;</button>
     </div>
@@ -422,7 +461,7 @@
     <div id="container">
       <img src="speech.png" alt="Speech bubble">
       <div id="content">
-        <p id="displayText">First alternative text</p>
+        <p id="displayText">May I court you?</p>
         <div id="buttons">
           <button id="yesBtn">Yes</button>
           <button id="noBtn">No</button>
@@ -435,7 +474,7 @@
       <span class="popper pink5">&#10084;</span>
       <span class="popper pink2">&#10084;</span>
       <h1 class="pink3">YAAAAY!!!</h1>
-      <button id="writeLetterBtn">You can write a letter here for me!</button>
+      <button id="writeLetterBtn">You can write a letter here for me if you have something to say.</button>
     </div>
 
   </div>
@@ -452,6 +491,8 @@
 
   <script>
     const openBtn = document.getElementById('openBtn');
+    const bearGif = document.getElementById('bearGif');
+    const envelopeHint = document.getElementById('envelopeHint');
     const letter = document.getElementById('letter');
     const letterBtn = document.getElementById('letterBtn');
     const catVideo = document.getElementById('catVideo');
@@ -490,7 +531,7 @@
 
     const today = new Date();
     dateInput.value = today.toISOString().split('T')[0];
-    const correctDate = '2026-06-01';
+    const correctDate = '2026-06-07';
 
     dateConfirm.addEventListener('click', () => {
       if (dateInput.value === correctDate) {
@@ -540,8 +581,14 @@
 
     openBtn.addEventListener('click', () => {
       openBtn.classList.add('zoom');
+      bearGif.style.transition = 'opacity 0.4s';
+      bearGif.style.opacity = '0';
+      envelopeHint.style.transition = 'opacity 0.4s';
+      envelopeHint.style.opacity = '0';
       setTimeout(() => {
         openBtn.style.display = 'none';
+        bearGif.style.display = 'none';
+        envelopeHint.style.display = 'none';
         calendarContainer.classList.add('visible');
       }, 400);
     });
@@ -598,6 +645,9 @@
     });
 
     writeLetterBtn.addEventListener('click', () => {
+      sendBtn.textContent = 'Send';
+      sendBtn.style.background = '#ff6b9d';
+      sendBtn.disabled = false;
       letterModal.classList.add('visible');
     });
 
@@ -612,6 +662,19 @@
     sendBtn.addEventListener('click', async () => {
       const name = letterName.value || 'You';
       const body = letterText.value || 'No message written.';
+
+      if (sendBtn.dataset.confirming !== 'true') {
+        sendBtn.dataset.confirming = 'true';
+        const orig = sendBtn.textContent;
+        sendBtn.textContent = 'Confirm send?';
+        setTimeout(() => {
+          sendBtn.textContent = orig;
+          sendBtn.dataset.confirming = 'false';
+        }, 3000);
+        return;
+      }
+      sendBtn.dataset.confirming = 'false';
+
       sendBtn.textContent = 'Sending...';
       sendBtn.disabled = true;
       try {
@@ -620,11 +683,13 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: 'frenn2444@gmail.com',
-            message: 'From ' + name + ':\n\n' + body
+            message: 'Dear ' + name + ':\n\n' + body
           })
         });
         sendBtn.textContent = 'Sent!';
         sendBtn.style.background = '#4caf50';
+        letterName.value = '';
+        letterText.value = '';
         setTimeout(() => { letterModal.classList.remove('visible'); }, 1000);
       } catch {
         sendBtn.textContent = 'Failed';
