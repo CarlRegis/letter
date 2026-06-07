@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dialog Demo</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: url(background.jpg) no-repeat center / cover fixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #bounds {
+      position: relative;
+      width: 800px;
+      height: 480px;
+      overflow: hidden;
+    }
+    .media {
+      width: 320px;
+      height: 260px;
+      display: none;
+      object-fit: cover;
+      position: absolute;
+      top: 70%;
+      left: 200px;
+      transform: translateY(-50%);
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    .media.visible {
+      display: block;
+      opacity: 1;
+    }
+    #openBtn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 10;
+      transition: transform 0.4s, opacity 0.4s;
+    }
+    #openBtn.zoom {
+      transform: translate(-50%, -50%) scale(1.5);
+      opacity: 0;
+    }
+    #letter {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffe4ec;
+      border: 2px solid #ff6b9d;
+      border-radius: 8px;
+      padding: 40px;
+      width: 500px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      font-family: 'Georgia', serif;
+      z-index: 20;
+    }
+    #letter.visible {
+      display: block;
+    }
+    #letter h1 {
+      font-size: 24px;
+      color: #d6336c;
+      margin: 0 0 16px 0;
+      text-align: center;
+    }
+    #letter p {
+      text-align: justify;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #a13d5f;
+      min-height: 3.2em;
+    }
+    #letter p::after {
+      content: '|';
+      animation: blink 0.7s steps(1) infinite;
+    }
+    #letter p.done::after {
+      display: none;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    #letterBtn {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      background: #ff6b9d;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #letterBtn:hover {
+      background: #e05585;
+    }
+
+    #container {
+      position: absolute;
+      top: 30%;
+      right: 100px;
+      transform: translateY(-50%);
+      display: none;
+      z-index: 30;
+    }
+    #container.visible {
+      display: inline-block;
+    }
+    #container img {
+      display: block;
+      width: 350px;
+    }
+    #content {
+      position: absolute;
+      top: 32%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    #content p {
+      margin: 0 0 10px 0;
+      font-size: 20px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    #buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+    #yesBtn, #noBtn {
+      padding: 10px 24px;
+      border: 2px solid #ff6b9d;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    #yesBtn {
+      background: #ff6b9d;
+      color: #fff;
+    }
+    #noBtn {
+      background: #fff;
+      color: #333;
+      position: relative;
+      z-index: 100;
+    }
+
+    .fade-out {
+      opacity: 0 !important;
+      transition: opacity 0.5s;
+    }
+
+    #celebration {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 60px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      z-index: 50;
+    }
+    #celebration.visible {
+      display: block;
+    }
+    #celebration h1 {
+      font-size: 64px;
+      margin: 0;
+      animation: pop 0.6s ease-out;
+    }
+    #writeLetterBtn {
+      margin-top: 20px;
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: #ff6b9d;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .popper {
+      font-size: 60px;
+      display: inline-block;
+      animation: pop 0.6s ease-out;
+    }
+    .pink1 { color: #ff6b9d; }
+    .pink2 { color: #ff8fab; }
+    .pink3 { color: #ffb3c6; }
+    .pink4 { color: #ffc8d6; }
+    .pink5 { color: #ff4d7a; }
+    .popper:nth-child(1) { animation-delay: 0.1s; }
+    .popper:nth-child(2) { animation-delay: 0.2s; }
+    .popper:nth-child(3) { animation-delay: 0.3s; }
+
+    #letterModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    #letterModal.visible {
+      display: flex;
+    }
+    #letterModal .modal-box {
+      background: #fff9e6;
+      border: 2px solid #ff6b9d;
+      border-radius: 12px;
+      padding: 30px;
+      width: 500px;
+      max-width: 90vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      font-family: 'Georgia', serif;
+      position: relative;
+    }
+    #letterModal .modal-box .letter-heading {
+      text-align: center;
+      color: #d6336c;
+      font-size: 24px;
+      font-weight: bold;
+      font-family: 'Georgia', serif;
+      margin: 0 0 16px 0;
+    }
+    #letterModal .modal-box .letter-heading input {
+      color: #d6336c;
+      font-size: 24px;
+      font-weight: bold;
+      font-family: 'Georgia', serif;
+      border: none;
+      border-bottom: 2px dashed #ff6b9d;
+      background: transparent;
+      outline: none;
+      width: 120px;
+      text-align: center;
+    }
+    #letterModal .modal-box textarea {
+      width: 100%;
+      height: 200px;
+      border: 1px solid #ff6b9d;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 16px;
+      font-family: 'Georgia', serif;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+    #letterModal .modal-box .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #ff6b9d;
+      cursor: pointer;
+    }
+    #letterModal .modal-box .send-btn {
+      display: block;
+      margin: 16px auto 0;
+      padding: 10px 30px;
+      background: #ff6b9d;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #letterModal .modal-box .send-btn:hover {
+      background: #e05585;
+    }
+    @keyframes pop {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div id="bounds">
+    <video id="catVideo" class="media" src="cat.webm" autoplay loop muted></video>
+    <img id="shockedGif" class="media" src="shocked.gif">
+    <img id="cryGif" class="media" src="cry.gif">
+
+    <img id="openBtn" src="envelope.png" alt="Open">
+
+    <div id="letter">
+      <h1>Dear You,</h1>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+      </p>
+      <button id="letterBtn">&#8594;</button>
+    </div>
+
+    <div id="container">
+      <img src="speech.png" alt="Speech bubble">
+      <div id="content">
+        <p id="displayText">First alternative text</p>
+        <div id="buttons">
+          <button id="yesBtn">Yes</button>
+          <button id="noBtn">No</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="celebration">
+      <span class="popper pink1">&#10084;</span>
+      <span class="popper pink5">&#10084;</span>
+      <span class="popper pink2">&#10084;</span>
+      <h1 class="pink3">YAAAAY!!!</h1>
+      <button id="writeLetterBtn">You can write a letter here for me!</button>
+    </div>
+
+    <div id="letterModal">
+      <div class="modal-box">
+        <button class="modal-close">&times;</button>
+        <div class="letter-heading">Dear <input id="letterName" placeholder="Name">,</div>
+        <textarea placeholder="Write your letter here..."></textarea>
+        <button class="send-btn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const openBtn = document.getElementById('openBtn');
+    const letter = document.getElementById('letter');
+    const letterBtn = document.getElementById('letterBtn');
+    const catVideo = document.getElementById('catVideo');
+    const shockedGif = document.getElementById('shockedGif');
+    const cryGif = document.getElementById('cryGif');
+    const container = document.getElementById('container');
+    const displayText = document.getElementById('displayText');
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const writeLetterBtn = document.getElementById('writeLetterBtn');
+    const letterModal = document.getElementById('letterModal');
+    const modalClose = document.querySelector('.modal-close');
+
+    let noClicks = 0;
+    let yesScale = 1;
+    const letterP = document.querySelector('#letter p');
+    const fullText = letterP.textContent;
+
+    function typeText(el, text, speed, callback) {
+      let i = 0;
+      el.textContent = '';
+      el.classList.remove('done');
+      const timer = setInterval(() => {
+        el.textContent += text[i];
+        i++;
+        if (i >= text.length) {
+          clearInterval(timer);
+          el.classList.add('done');
+          if (callback) callback();
+        }
+      }, speed);
+    }
+
+    openBtn.addEventListener('click', () => {
+      openBtn.classList.add('zoom');
+      setTimeout(() => {
+        openBtn.style.display = 'none';
+        letter.classList.add('visible');
+        typeText(letterP, fullText, 30);
+      }, 400);
+    });
+
+    letterBtn.addEventListener('click', () => {
+      letter.classList.remove('visible');
+      letter.style.display = 'none';
+      catVideo.classList.add('visible');
+      catVideo.play();
+      container.classList.add('visible');
+    });
+
+    yesBtn.addEventListener('click', () => {
+      const visibleMedia = document.querySelector('.media.visible');
+      if (visibleMedia) visibleMedia.classList.add('fade-out');
+      container.classList.add('fade-out');
+      noBtn.classList.add('fade-out');
+      yesBtn.classList.add('fade-out');
+      setTimeout(() => {
+        if (visibleMedia) visibleMedia.style.display = 'none';
+        container.style.display = 'none';
+        noBtn.style.display = 'none';
+        yesBtn.style.display = 'none';
+        document.getElementById('celebration').classList.add('visible');
+      }, 500);
+    });
+
+    noBtn.addEventListener('click', () => {
+      noClicks++;
+      yesScale += 0.1;
+      yesBtn.style.transform = 'scale(' + yesScale + ')';
+
+      if (noClicks === 2) {
+        catVideo.classList.remove('visible');
+        setTimeout(() => {
+          catVideo.style.display = 'none';
+          shockedGif.style.width = '350px';
+          shockedGif.style.height = '290px';
+          shockedGif.style.display = 'block';
+          requestAnimationFrame(() => shockedGif.classList.add('visible'));
+        }, 500);
+      } else if (noClicks === 4) {
+        shockedGif.classList.remove('visible');
+        setTimeout(() => {
+          shockedGif.style.display = 'none';
+          cryGif.style.width = '400px';
+          cryGif.style.height = '350px';
+          cryGif.style.display = 'block';
+          requestAnimationFrame(() => cryGif.classList.add('visible'));
+        }, 500);
+      }
+
+      const bounds = document.getElementById('bounds');
+      bounds.appendChild(noBtn);
+      const bw = noBtn.offsetWidth;
+      const bh = noBtn.offsetHeight;
+      const x = Math.random() * (bounds.clientWidth - bw);
+      const y = Math.random() * (bounds.clientHeight - bh);
+      noBtn.style.position = 'absolute';
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+    });
+
+    writeLetterBtn.addEventListener('click', () => {
+      letterModal.classList.add('visible');
+    });
+
+    modalClose.addEventListener('click', () => {
+      letterModal.classList.remove('visible');
+    });
+
+    letterModal.addEventListener('click', (e) => {
+      if (e.target === letterModal) letterModal.classList.remove('visible');
+    });
+  </script>
+</body>
+</html>
