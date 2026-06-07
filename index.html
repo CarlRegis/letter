@@ -15,6 +15,11 @@
       align-items: center;
       justify-content: center;
     }
+    #scaled {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     #bounds {
       position: relative;
       width: 800px;
@@ -325,6 +330,7 @@
   </style>
 </head>
 <body>
+  <div id="scaled">
   <div id="bounds">
     <video id="catVideo" class="media" src="cat.webm" autoplay loop muted></video>
     <img id="shockedGif" class="media" src="shocked.gif">
@@ -360,6 +366,7 @@
     </div>
 
   </div>
+  </div>
 
   <div id="letterModal">
     <div class="modal-box">
@@ -386,25 +393,20 @@
     const modalClose = document.querySelector('.modal-close');
 
     function fitBounds() {
-      const bounds = document.getElementById('bounds');
+      const scaled = document.getElementById('scaled');
       const sx = window.innerWidth / 800;
       const sy = window.innerHeight / 480;
       if (sx >= 1 && sy >= 1) {
-        bounds.style.transform = '';
-        bounds.style.marginLeft = '';
-        bounds.style.marginTop = '';
+        scaled.style.transform = '';
       } else {
         const s = Math.min(sx, sy);
-        bounds.style.transformOrigin = '0 0';
-        bounds.style.transform = 'scale(' + s + ')';
-        bounds.style.marginLeft = ((window.innerWidth - 800 * s) / 2) + 'px';
-        bounds.style.marginTop = ((window.innerHeight - 480 * s) / 2) + 'px';
+        scaled.style.transform = 'scale(' + s + ')';
       }
     }
     window.addEventListener('resize', fitBounds);
     window.addEventListener('orientationchange', fitBounds);
     fitBounds();
-    setTimeout(fitBounds, 100);
+    setTimeout(fitBounds, 200);
 
     let noClicks = 0;
     let yesScale = 1;
