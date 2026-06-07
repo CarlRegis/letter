@@ -443,15 +443,13 @@
     <div id="letter">
       <h1>Dear Ella,</h1>
       <p>
-        <!-- Hii! it has been month since we started talking, at first I didn't expect something but as days goes by I started looking forward for every bit of your replies and I started to think about you more than I expected even if i'm working, I started to think kun nag-aano ka, nag eat kana ba, nag rest kana ba, and how was your day. I thought that parang nasanay lang ba ako pero when I tried to think more deeper that's when I realized that I already have feelings for you or in short I like you but I didn't tell you kaagad because I don't have the courage pa especially if ha personal ko ig yakan so I decided to make this to tell you that I LIKE YOU. You don't have to be pressured ha, you don't have to like me back naman hehehe. Thats all, secret la ine na message ha ayaw pabasaha hra emman kay maiibanan ak angas HAHAHAHA. I have a question pala ig click lang ang arrow.
-          -->
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptate, quibusdam explicabo! Laborum fugit corrupti accusamus in nihil nemo eius quibusdam quidem, tempora neque, beatae labore aliquam asperiores hic nobis reiciendis.
+        Hii! it has been month since we started talking, at first I didn't expect something but as days goes by I started looking forward for every bit of your replies and I started to think about you more than I expected even if i'm working, I started to think kun nag-aano ka, nag eat kana ba, nag rest kana ba, and how was your day. I thought that parang nasanay lang ba ako pero when I tried to think more deeper that's when I realized that I already have feelings for you or in short I like you but I didn't tell you kaagad because I don't have the courage pa especially if ha personal ko ig yakan so I decided to make this to tell you that I LIKE YOU. You don't have to be pressured ha, you don't have to like me back naman hehehe. Thats all, secret la ine na message ha ayaw pabasaha hra emman kay maiibanan ak angas HAHAHAHA. I have a question pala ig click lang ang arrow.
       </p>
       <button id="letterBtn">&#8594;</button>
     </div>
 
     <div id="calendarContainer">
-      <!-- <h2>When is our first meeting?</h2> -->
+      <h2>When is our first meeting?</h2>
       <p class="calendar-hint">Choose the right date to continue</p>
       <input type="date" id="dateInput">
       <p id="calendarMsg"></p>
@@ -531,7 +529,7 @@
 
     const today = new Date();
     dateInput.value = today.toISOString().split('T')[0];
-    const correctDate = '2026-06-07';
+    const correctDate = '2026-06-01';
 
     dateConfirm.addEventListener('click', () => {
       if (dateInput.value === correctDate) {
