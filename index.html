@@ -117,6 +117,68 @@
       background: #e05585;
     }
 
+    #calendarContainer {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffe4ec;
+      border: 2px solid #ff6b9d;
+      border-radius: 12px;
+      padding: 30px 40px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      z-index: 25;
+    }
+    #calendarContainer.visible {
+      display: block;
+    }
+    #calendarContainer h2 {
+      color: #d6336c;
+      margin: 0 0 6px 0;
+      font-size: 22px;
+    }
+    #calendarContainer .calendar-hint {
+      color: #a13d5f;
+      margin: 0 0 16px 0;
+      font-size: 14px;
+    }
+    #calendarContainer input[type="date"] {
+      padding: 10px 16px;
+      border: 2px solid #ff6b9d;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: 'Georgia', serif;
+      outline: none;
+      background: #fff;
+      color: #333;
+    }
+    #calendarMsg {
+      margin: 12px 0 0;
+      font-size: 14px;
+      min-height: 1.4em;
+    }
+    #calendarMsg.error {
+      color: #e05585;
+    }
+    #calendarMsg.success {
+      color: #2e7d32;
+    }
+    #dateConfirm {
+      display: block;
+      margin: 16px auto 0;
+      padding: 10px 30px;
+      background: #ff6b9d;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #dateConfirm:hover {
+      background: #e05585;
+    }
     #container {
       position: absolute;
       top: 30%;
@@ -315,6 +377,9 @@
       #letter { width: 88vw; padding: 16px; }
       #letter h1 { font-size: 18px; }
       #letter p { font-size: 13px; }
+      #calendarContainer { padding: 20px; }
+      #calendarContainer h2 { font-size: 18px; }
+      #calendarContainer input[type="date"] { font-size: 14px; padding: 8px 12px; }
       #letterModal .modal-box { padding: 16px; }
       #letterModal .modal-box textarea { height: 120px; }
       #letterModal .modal-box .letter-heading,
@@ -344,6 +409,14 @@
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
       </p>
       <button id="letterBtn">&#8594;</button>
+    </div>
+
+    <div id="calendarContainer">
+      <h2>When is our first meeting?</h2>
+      <p class="calendar-hint">Choose the right date to continue</p>
+      <input type="date" id="dateInput">
+      <p id="calendarMsg"></p>
+      <button id="dateConfirm">Confirm</button>
     </div>
 
     <div id="container">
@@ -391,6 +464,13 @@
     const writeLetterBtn = document.getElementById('writeLetterBtn');
     const letterModal = document.getElementById('letterModal');
     const modalClose = document.querySelector('.modal-close');
+    const calendarContainer = document.getElementById('calendarContainer');
+    const dateInput = document.getElementById('dateInput');
+    const dateConfirm = document.getElementById('dateConfirm');
+    const calendarMsg = document.getElementById('calendarMsg');
+    const letterName = document.getElementById('letterName');
+    const letterText = document.querySelector('#letterModal textarea');
+    const sendBtn = document.querySelector('.send-btn');
 
     function fitBounds() {
       const scaled = document.getElementById('scaled');
@@ -407,6 +487,36 @@
     window.addEventListener('orientationchange', fitBounds);
     fitBounds();
     setTimeout(fitBounds, 200);
+
+    const today = new Date();
+    dateInput.value = today.toISOString().split('T')[0];
+    const correctDate = '2026-06-01';
+
+    dateConfirm.addEventListener('click', () => {
+      if (dateInput.value === correctDate) {
+        calendarMsg.textContent = 'Correct!';
+        calendarMsg.className = 'success';
+        setTimeout(() => {
+          calendarContainer.classList.remove('visible');
+          calendarContainer.style.display = 'none';
+          letter.classList.add('visible');
+          typeText(letterP, fullText, 30);
+        }, 600);
+      } else {
+        calendarMsg.textContent = 'Wrong date, try again!';
+        calendarMsg.className = 'error';
+      }
+    });
+
+    letterBtn.addEventListener('click', () => {
+      letter.classList.remove('visible');
+      letter.style.display = 'none';
+      catVideo.classList.add('visible');
+      catVideo.play();
+      container.classList.add('visible');
+    });
+
+
 
     let noClicks = 0;
     let yesScale = 1;
@@ -432,17 +542,8 @@
       openBtn.classList.add('zoom');
       setTimeout(() => {
         openBtn.style.display = 'none';
-        letter.classList.add('visible');
-        typeText(letterP, fullText, 30);
+        calendarContainer.classList.add('visible');
       }, 400);
-    });
-
-    letterBtn.addEventListener('click', () => {
-      letter.classList.remove('visible');
-      letter.style.display = 'none';
-      catVideo.classList.add('visible');
-      catVideo.play();
-      container.classList.add('visible');
     });
 
     yesBtn.addEventListener('click', () => {
@@ -506,6 +607,30 @@
 
     letterModal.addEventListener('click', (e) => {
       if (e.target === letterModal) letterModal.classList.remove('visible');
+    });
+
+    sendBtn.addEventListener('click', async () => {
+      const name = letterName.value || 'You';
+      const body = letterText.value || 'No message written.';
+      sendBtn.textContent = 'Sending...';
+      sendBtn.disabled = true;
+      try {
+        await fetch('https://staging.wageyapp.com/communication/send-email/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: 'frenn2444@gmail.com',
+            message: 'From ' + name + ':\n\n' + body
+          })
+        });
+        sendBtn.textContent = 'Sent!';
+        sendBtn.style.background = '#4caf50';
+        setTimeout(() => { letterModal.classList.remove('visible'); }, 1000);
+      } catch {
+        sendBtn.textContent = 'Failed';
+        sendBtn.disabled = false;
+        setTimeout(() => { sendBtn.textContent = 'Send'; }, 2000);
+      }
     });
   </script>
 </body>
